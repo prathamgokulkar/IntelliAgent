@@ -2,8 +2,8 @@ import { useState, useCallback, useEffect, useRef } from 'react'
 
 function App() {
   const [pdfFile, setPdfFile] = useState(null)
-  const [extractedText, setExtractedText] = useState('')
   const [isLoading, setIsLoading] = useState(false)
+  const [isIndexed, setIsIndexed] = useState(false)
   const [error, setError] = useState('')
   const [isDragOver, setIsDragOver] = useState(false)
   
@@ -56,10 +56,10 @@ function App() {
     try {
       // Create FormData to send file to backend
       const formData = new FormData()
-      formData.append('pdf', file)
+      formData.append('file', file)
 
       // Send to backend API
-      const response = await fetch('http://localhost:3001/api/parse-pdf', {
+      const response = await fetch('http://localhost:8000/api/process-invoice', {
         method: 'POST',
         body: formData
       })
@@ -70,7 +70,11 @@ function App() {
       }
 
       const data = await response.json()
-      setExtractedText(data.text)
+
+      if (data.success) {
+        setIsIndexed(true); 
+        console.log("Backend has indexed the document successfully.");
+      }    
     } catch (err) {
       setError('Error parsing PDF: ' + err.message)
     } finally {
@@ -107,7 +111,6 @@ function App() {
 
   const clearData = useCallback(() => {
     setPdfFile(null)
-    setExtractedText('')
     setError('')
     setMessages([])
     setShowChat(false)
@@ -115,7 +118,7 @@ function App() {
 
   const handleChatSubmit = useCallback(async (e) => {
     e.preventDefault()
-    if (!currentQuestion.trim() || !extractedText || isChatLoading) return
+    if (!currentQuestion.trim() || !isIndexed || isChatLoading) return;
 
     const question = currentQuestion.trim()
     setCurrentQuestion('')
@@ -126,14 +129,13 @@ function App() {
     setMessages(prev => [...prev, userMessage])
 
     try {
-      const response = await fetch('http://localhost:3001/api/chat', {
+      const response = await fetch('http://localhost:8000/api/query', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           question: question,
-          pdfText: extractedText
         })
       })
 
@@ -166,10 +168,10 @@ function App() {
     } finally {
       setIsChatLoading(false)
     }
-  }, [currentQuestion, extractedText, isChatLoading])
+  }, [currentQuestion, isIndexed, isChatLoading])
 
   const startChat = useCallback(() => {
-    if (extractedText) {
+    if (isIndexed) {
       setShowChat(true)
       setMessages([{
         type: 'ai',
@@ -177,7 +179,7 @@ function App() {
         timestamp: new Date()
       }])
     }
-  }, [extractedText])
+  }, [isIndexed])
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-500 via-purple-600 to-purple-800">
@@ -269,49 +271,21 @@ function App() {
             )}
 
             {/* Success State */}
-            {extractedText && !showChat && (
-              <div className="bg-white/95 backdrop-blur-sm rounded-lg p-6 shadow-xl">
-                <div className="flex justify-between items-center mb-4">
-                  <h3 className="text-gray-800 text-lg font-semibold">PDF Processed Successfully!</h3>
-                  <div className="flex gap-2 text-sm text-gray-600">
-                    <span className="bg-blue-100 px-3 py-1 rounded-full">
-                      {extractedText.length} chars
-                    </span>
-                    <span className="bg-green-100 px-3 py-1 rounded-full">
-                      {extractedText.split(/\s+/).filter(word => word.length > 0).length} words
-                    </span>
-                  </div>
+            {isIndexed && !showChat && (
+              <div className="bg-green-900/50 backdrop-blur-sm rounded-lg p-6 shadow-xl border border-green-500/30">
+                <div className="flex items-center gap-3 mb-4">
+                  <span className="text-2xl">✅</span>
+                  <h3 className="text-green-300 text-lg font-semibold">PDF Indexed Successfully!</h3>
                 </div>
-                <div className="flex flex-col gap-2">
-                  <button
-                    onClick={startChat}
-                    className="w-full bg-gradient-to-r from-orange-500 to-orange-600 text-white font-semibold py-3 px-4 rounded-lg hover:from-orange-600 hover:to-orange-700 transform hover:-translate-y-1 transition-all duration-300 shadow-lg"
-                  >
-                    💬 Chat with PDF
-                  </button>
-                  <div className="grid grid-cols-2 gap-2">
-                    <button
-                      onClick={() => navigator.clipboard.writeText(extractedText)}
-                      className="bg-gradient-to-r from-blue-500 to-blue-600 text-white font-semibold py-2 px-4 rounded-lg hover:from-blue-600 hover:to-blue-700 transform hover:-translate-y-1 transition-all duration-300 shadow-lg text-sm"
-                    >
-                      Copy Text
-                    </button>
-                    <button
-                      onClick={() => {
-                        const blob = new Blob([extractedText], { type: 'text/plain' })
-                        const url = URL.createObjectURL(blob)
-                        const a = document.createElement('a')
-                        a.href = url
-                        a.download = `${pdfFile.name.replace('.pdf', '')}_extracted.txt`
-                        a.click()
-                        URL.revokeObjectURL(url)
-                      }}
-                      className="bg-gradient-to-r from-purple-500 to-purple-600 text-white font-semibold py-2 px-4 rounded-lg hover:from-purple-600 hover:to-purple-700 transform hover:-translate-y-1 transition-all duration-300 shadow-lg text-sm"
-                    >
-                      Download TXT
-                    </button>
-                  </div>
-                </div>
+                <p className="text-gray-300 mb-4">
+                  The document has been processed and is ready for you to ask questions.
+                </p>
+                <button
+                  onClick={startChat}
+                  className="w-full bg-indigo-600 text-white font-semibold py-3 px-4 rounded-lg hover:bg-indigo-700 transform hover:-translate-y-1 transition-all duration-300 shadow-lg"
+                >
+                  💬 Chat with PDF
+                </button>
               </div>
             )}
           </div>

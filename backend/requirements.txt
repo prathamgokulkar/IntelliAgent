@@ -1,9 +1,13 @@
 # dependencies for backend
 fastapi
 uvicorn
-google-generativeai
 langchain
 langchain-community
 langchain-chroma
 langchain-google-genai
 chromadb
+langchain_groq
+python-multipart
+pypdf
+sentence-transformers
+python-dotenv
