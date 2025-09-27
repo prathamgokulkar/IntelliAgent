@@ -1,0 +1,1 @@
+# Will contain a function that takes a PDF path, uses the services from core/ to load, split, and embed the text, and then stores it in the vector database.

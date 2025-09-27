@@ -1,0 +1,9 @@
+# dependencies for backend
+fastapi
+uvicorn
+google-generativeai
+langchain
+langchain-community
+langchain-chroma
+langchain-google-genai
+chromadb

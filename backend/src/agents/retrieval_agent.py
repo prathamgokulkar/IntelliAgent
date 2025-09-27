@@ -1,0 +1,1 @@
+# Will contain a function that takes a user's question, embeds it, and retrieves relevant document chunks from the database.
