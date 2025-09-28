@@ -11,3 +11,6 @@ python-multipart
 pypdf
 sentence-transformers
 python-dotenv
+pymupdf
+pdf2image
+pytesseract
