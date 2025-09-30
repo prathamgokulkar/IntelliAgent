@@ -1,153 +1,97 @@
-# PDF AI Chat Assistant
+IntelliAgent AI: A Multi-Agent RAG System
+A full-stack, AI-powered application for conversing with your financial documents. This system uses a multi-agent architecture to provide intelligent, fact-checked answers from both digital and scanned PDFs.
 
-A full-stack application for uploading PDFs and chatting with AI to get answers about your documents using Gemini AI.
+Features
+📄 Hybrid PDF Processing: Handles both digitally native and scanned (image-based) PDFs seamlessly.
 
-## Features
+🧠 Multi-Agent Architecture: A robust backend built with specialized agents for Orchestration, Indexing, OCR, and Q&A.
 
-- 📄 **PDF Upload**: Drag-and-drop or click to upload PDF files
-- 🔍 **Text Extraction**: Extract text content from PDFs using pdf-parse
-- 🤖 **AI Chat**: Chat with Gemini AI about your PDF content
-- 💬 **Smart Responses**: AI provides contextual answers based on PDF content
-- 📊 **Text Chunking**: Intelligent text processing for better AI responses
-- 💾 **Export Options**: Copy to clipboard or download as text file
-- 🎨 **Modern UI**: Beautiful, responsive chat interface
-- ⚡ **Fast Processing**: Server-side PDF parsing and AI processing
+🔍 Conversational Q&A: Ask complex questions in natural language and get answers based on the document's content.
 
-## Architecture
+✅ Fact-Checked Responses: Includes a Validation Agent to check the AI's answers against the source text, reducing hallucinations.
 
-- **Frontend**: React + Vite (Port 5173)
-- **Backend**: Node.js + Express (Port 3001)
-- **PDF Parsing**: pdf-parse library
-- **AI Integration**: Google Gemini AI
-- **Text Processing**: Custom chunking and relevance algorithms
+🐳 Persistent Memory: Utilizes a Qdrant vector database running in Docker for fast, reliable, and isolated document memory.
 
-## Quick Start
+🎨 Modern UI: A sleek, responsive chat interface built with React and Tailwind CSS.
 
-### Option 1: Start Both Servers (Recommended)
-```bash
-./start-dev.sh
-```
+⚡ Fast Inference: Powered by the high-speed Groq API for near-instantaneous LLM responses.
 
-### Option 2: Start Servers Separately
+Architecture
+Frontend: React + Vite (Port 5173)
 
-1. **Start Backend**:
-   ```bash
-   cd backend
-   npm start
-   ```
+Backend: Python + FastAPI (Port 8000)
 
-2. **Start Frontend** (in a new terminal):
-   ```bash
-   cd server
-   npm run dev
-   ```
+AI Orchestration: LangChain
 
-## API Endpoints
+Vector Database: Qdrant (via Docker)
 
-### POST /api/parse-pdf
-Upload and parse a PDF file.
+Embedding Model: Hugging Face all-MiniLM-L6-v2
 
-**Request**: Multipart form data with `pdf` field
-**Response**:
-```json
-{
-  "success": true,
-  "text": "Extracted text content...",
-  "metadata": {
-    "fileName": "document.pdf",
-    "fileSize": 1024000,
-    "pages": 5,
-    "textLength": 2500,
-    "wordCount": 400
-  }
-}
-```
+Language Model (LLM): Groq API (Llama 3)
 
-### POST /api/chat
-Chat with AI about PDF content.
+OCR Engine: Tesseract OCR
 
-**Request**:
-```json
-{
-  "question": "What is the main topic of this document?",
-  "pdfText": "Extracted PDF text content..."
-}
-```
+PDF Parsing: PyMuPDF
 
-**Response**:
-```json
-{
-  "success": true,
-  "answer": "AI response based on PDF content...",
-  "chunksUsed": 3,
-  "contextLength": 2500
-}
-```
+Quick Start
+Prerequisites
+Docker Desktop: Must be installed and running.
 
-### GET /health
-Health check endpoint.
+Python 3.10+ and a virtual environment (e.g., conda).
 
-## Project Structure
+Node.js and npm.
 
-```
-PDF/
-├── backend/           # Node.js backend
-│   ├── server.js     # Express server
-│   └── package.json  # Backend dependencies
-├── server/           # React frontend
+Tesseract OCR installed on your system.
+
+1. Configure Environment Variables
+In the backend/ directory, create a .env file and add your Groq API key:
+
+GROQ_API_KEY="gsk_YourSecretKeyHere"
+
+2. Start the Qdrant Database
+In a terminal, navigate to the backend/ directory and run:
+
+docker-compose up -d
+
+You can view the Qdrant dashboard at http://localhost:6334/dashboard.
+
+3. Start the Backend Server
+In a new terminal, activate your Python environment, navigate to the backend/ directory, and run:
+
+# Activate your conda environment (e.g., conda activate btech_final)
+pip install -r requirements.txt
+uvicorn main:app --reload
+
+The backend will be running on http://localhost:8000.
+
+4. Start the Frontend Server
+In a third terminal, navigate to the frontend/ directory and run:
+
+npm install
+npm run dev
+
+The application will be available at http://localhost:5173.
+
+API Endpoints
+POST /api/process-invoice: Clears the old session and indexes a new PDF.
+
+POST /api/query: Receives a question and returns an AI-generated answer.
+
+POST /api/clear-store: Manually clears the vector database.
+
+Project Structure
+IntelliAgent-AI/
+├── frontend/           # React frontend
 │   ├── src/
-│   │   ├── App.jsx   # Main React component
-│   │   └── App.css   # Styles
-│   └── package.json  # Frontend dependencies
-└── start-dev.sh      # Development script
-```
+│   └── package.json
+└── backend/            # Python backend
+    ├── .env
+    ├── docker-compose.yml
+    ├── main.py         # Orchestrator Agent (FastAPI)
+    ├── requirements.txt
+    └── src/
+        ├── agents/     # Specialized agent logic
+        └── core/       # Core services (loader, splitter, etc.)
 
-## Dependencies
-
-### Backend
-- express: Web framework
-- pdf-parse: PDF text extraction
-- multer: File upload handling
-- cors: Cross-origin resource sharing
-
-### Frontend
-- react: UI library
-- vite: Build tool
-
-## Usage
-
-1. Open http://localhost:5173 in your browser
-2. Drag and drop a PDF file or click to browse
-3. Wait for text extraction to complete
-4. Click "💬 Chat with PDF" to start chatting
-5. Ask questions about your PDF content
-6. Get AI-powered answers based on your document
-7. Copy or download the extracted text if needed
-
-## Environment Setup
-
-1. Get a Gemini API key from [Google AI Studio](https://makersuite.google.com/app/apikey)
-2. Set the API key in your environment:
-   ```bash
-   export GEMINI_API_KEY=your_api_key_here
-   ```
-   Or add it to a `.env` file in the backend directory.
-
-## Error Handling
-
-- File type validation (PDF only)
-- File size limits (10MB max)
-- Server error handling
-- Network error handling
-
-## Development
-
-The application uses:
-- **Backend**: Node.js with Express for API
-- **Frontend**: React with Vite for fast development
-- **PDF Processing**: pdf-parse for reliable text extraction
-- **File Upload**: multer for handling multipart form data
-
-## License
-
+License
 MIT

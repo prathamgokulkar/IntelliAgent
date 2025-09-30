@@ -8,5 +8,5 @@ services:
       - "6333:6333"  # gRPC port for Python client
       - "6334:6334"  # REST API port for web dashboard
     volumes:
-      - ./qdrant_storage:/qdrant/storage  # persists your vectors & metadata
+      - ./qdrant_storage:/qdrant/storage  
     restart: unless-stopped

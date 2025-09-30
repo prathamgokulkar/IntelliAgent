@@ -5,23 +5,19 @@ from langchain_groq import ChatGroq
 from langchain_core.prompts import ChatPromptTemplate
 from dotenv import load_dotenv
 
-# THE CHANGE: Import our new centralized Qdrant client function
 from src.core.vector_store_client import get_vector_store_client
 
 load_dotenv()
 
-# --- CONFIGURATION ---
 GROQ_MODEL_NAME = "openai/gpt-oss-20b"
 
 def answer_query(question: str) -> str:
-    """
-    Handles a user query using a RAG pipeline with Qdrant and Groq.
-    """
+    
     try:
-        print(f"--- Q&A Agent: Answering question: '{question}' ---")
+        print(f"Q&A Agent: Answering question: '{question}'")
         llm = ChatGroq(model_name=GROQ_MODEL_NAME, temperature=0.3)
         
-        # THE CHANGE: Get the Qdrant vector store client
+        # Get the Qdrant vector store client
         vector_store = get_vector_store_client()
         retriever = vector_store.as_retriever(search_kwargs={"k": 5})
 
