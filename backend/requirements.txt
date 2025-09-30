@@ -3,7 +3,6 @@ fastapi
 uvicorn
 langchain
 langchain-community
-langchain-chroma
 langchain-google-genai
 chromadb
 langchain_groq
@@ -14,3 +13,5 @@ python-dotenv
 pymupdf
 pdf2image
 pytesseract
+langchain-pinecone
+qdrant-client

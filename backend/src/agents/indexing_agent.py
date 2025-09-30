@@ -1,30 +1,26 @@
-import os
-from langchain_chroma import Chroma
-from langchain.embeddings import HuggingFaceEmbeddings
-
 from src.core import loader, splitter
-
-DB_PATH = "vector_store"
-MODEL_NAME = "all-MiniLM-L6-v2"
-
-def get_embedding_function():
-    return HuggingFaceEmbeddings(model_name="sentence-transformers/multi-qa-MiniLM-L6-cos-v1" )
+# THE CHANGE: Import our new centralized Qdrant client function
+from src.core.vector_store_client import get_vector_store_client
 
 def process_and_store_pdf(pdf_path: str):
-    
+    """
+    Manages the PDF indexing workflow by calling specialists and using the Qdrant client.
+    """
     try:
-        print(f"Indexing Agent: Managing workflow for '{pdf_path}'")
+        print(f"--- Indexing Agent: Managing workflow for '{pdf_path}' ---")
         
-       
+        # Steps 1 & 2: Delegate to specialists (no change here)
         extracted_text = loader.load_pdf_text(pdf_path)
-        
         docs = splitter.split_text_into_chunks(extracted_text)
         
-        print("Performing core task of embedding and storing...")
-        embeddings = get_embedding_function()
-        Chroma.from_documents(docs, embeddings, persist_directory=DB_PATH)
+        # Step 3: Get the Qdrant client and add documents
+        print("--- Indexing Agent: Getting Qdrant client and adding documents... ---")
+        vector_store = get_vector_store_client()
         
-        print("--- Indexing Agent: Workflow completed successfully! ---")
+        # LangChain's Qdrant client handles the embedding process automatically
+        vector_store.add_documents(docs) 
+        
+        print("--- Indexing Agent: Workflow completed successfully! Documents added to Qdrant. ---")
         return True
 
     except Exception as e:
