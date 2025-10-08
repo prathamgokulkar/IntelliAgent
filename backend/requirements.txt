@@ -15,3 +15,5 @@ pdf2image
 pytesseract
 langchain-pinecone
 qdrant-client
+langchain-qdrant
+qdrant-client==1.9.0
