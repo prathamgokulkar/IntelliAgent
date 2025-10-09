@@ -6,7 +6,6 @@ from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
 
 from src.schemas import QueryRequest, QueryResponse, UploadResponse
-# Import our new centralized clearing function from the Qdrant client
 from src.core.vector_store_client import clear_vector_store
 
 load_dotenv()
@@ -22,27 +21,26 @@ app.add_middleware(
 
 @app.get("/")
 def read_root():
-    """A simple endpoint to check if the server is running."""
     return {"message": "Hello from the IntelliAgent Backend!"}
+
 
 @app.post("/api/clear-store")
 def clear_store_endpoint():
-    """Endpoint to manually clear the Qdrant collection."""
     try:
-        # This is now a clean API call to our Qdrant client function.
         clear_vector_store()
         return {"success": True, "message": "Vector store cleared."}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+
+# Endpoint to upload a PDF
 @app.post("/api/process-invoice", response_model=UploadResponse)
 async def process_invoice_endpoint(file: UploadFile = File(...)):
-    """Endpoint to upload a PDF. It now clears the Qdrant collection before processing."""
     from src.agents import indexing_agent
     tmp_path = None
     try:
         print("Orchestrator: New upload received. Clearing previous session...")
-        clear_vector_store() # This is now a clean API call
+        clear_vector_store() 
         
         with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as tmp:
             shutil.copyfileobj(file.file, tmp)
@@ -59,7 +57,6 @@ async def process_invoice_endpoint(file: UploadFile = File(...)):
 
 @app.post("/api/query", response_model=QueryResponse)
 async def query_endpoint(request: QueryRequest):
-    """Endpoint to ask a question to the indexed PDF."""
     from src.agents import qa_agent
     try:
         answer = qa_agent.answer_query(request.question)

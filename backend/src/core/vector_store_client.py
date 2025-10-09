@@ -9,10 +9,9 @@ QDRANT_COLLECTION_NAME = "intelliagent-collection"
 EMBEDDING_MODEL_NAME = "all-MiniLM-L6-v2"
 EMBEDDING_DIMENSION = 384 
 
+# Initializes and returns a LangChain Qdrant vector store client.
 def get_vector_store_client() -> Qdrant:
-    """
-    Initializes and returns a LangChain Qdrant vector store client.
-    """
+   
     client = QdrantClient(url=QDRANT_URL)
     embeddings = HuggingFaceEmbeddings(model_name=EMBEDDING_MODEL_NAME)
     
@@ -23,10 +22,9 @@ def get_vector_store_client() -> Qdrant:
     )
     return vector_store
 
+# Clears all data from the Qdrant collection by recreating it.
 def clear_vector_store():
-    """
-    Clears all data from the Qdrant collection by recreating it.
-    """
+  
     print(f"--- Qdrant Client: Deleting and recreating collection '{QDRANT_COLLECTION_NAME}'... ---")
     try:
         client = QdrantClient(url=QDRANT_URL)

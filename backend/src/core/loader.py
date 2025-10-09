@@ -1,4 +1,3 @@
- # Logic to load and parse PDFs
 import fitz  
 from src.agents import ocr_agent
 

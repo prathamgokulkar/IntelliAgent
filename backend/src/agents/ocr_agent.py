@@ -18,6 +18,5 @@ def extract_text_from_scanned_pdf(pdf_path: str) -> str:
         
     except Exception as e:
         print(f"!!!!!! ERROR in OCR Agent for {pdf_path}: {e} !!!!!!")
-        # Return an empty string if OCR fails, so the main pipeline can handle it
         return ""
 

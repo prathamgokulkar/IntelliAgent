@@ -14,10 +14,8 @@ function App() {
   const [showChat, setShowChat] = useState(false)
   const [showScrollButton, setShowScrollButton] = useState(false)
   
-  // Ref for chat messages container
   const chatMessagesRef = useRef(null)
 
-  // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
     if (chatMessagesRef.current) {
       chatMessagesRef.current.scrollTop = chatMessagesRef.current.scrollHeight
@@ -54,11 +52,10 @@ function App() {
     setPdfFile(file)
 
     try {
-      // Create FormData to send file to backend
+      // FormData to send file to backend
       const formData = new FormData()
       formData.append('file', file)
 
-      // Send to backend API
       const response = await fetch('http://localhost:8000/api/process-invoice', {
         method: 'POST',
         body: formData
@@ -182,12 +179,11 @@ function App() {
   }, [isIndexed])
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-500 via-purple-600 to-purple-800">
-      {/* Header */}
+    <div className="min-h-screen bg-gradient-to-br from-slate-800 via-blue-900 to-blue-900">
       <header className="bg-white/10 backdrop-blur-md border-b border-white/20">
         <div className="max-w-7xl mx-auto px-4 py-6">
           <h1 className="text-3xl md:text-4xl font-bold text-white text-center mb-2">
-            PDF AI Chat Assistant
+          IntelliAgent
           </h1>
           <p className="text-white/90 text-center text-lg">
             Upload a PDF and chat with AI to get answers about your document
